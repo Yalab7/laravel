@@ -1,0 +1,26 @@
+name: Backend CI/CD
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v4
+
+      - name: Deploy to Backend Server
+        uses: appleboy/ssh-action@v1.1.0
+        with:
+          host: ${{ secrets.BACKEND_SERVER_IP }}
+          username: ubuntu
+          key: ${{ secrets.SSH_PRIVATE_KEY }}   
+          script: |
+            git pull origin main               # Pull the latest changes from the main branch
+            composer install                   # Install dependencies
+            php artisan migrate                # Run database migrations
+            sudo systemctl restart laravel     # Restart the Laravel service (or use any other process manager)
